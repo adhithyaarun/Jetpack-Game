@@ -5,8 +5,8 @@ Player::Player(float x, float y, color_t color)
 {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
-    speed_x = 0.05;
-    speed_y = 0.05;
+    speed_x = 0.07;
+    speed_y = 0.07;
 
     /*  
         VERTICES: 
@@ -78,9 +78,10 @@ void Player::set_position(float x, float y)
 
 void Player::tick() 
 {
-    /* 
-        NOTE: Implementation of GRAVITY will be here 
-    */
+   if(this->position.y > -3.0)
+   {
+        this->position.y -= 0.03;
+   }
     
     // this->position.x -= speed_x;
     // this->position.y -= speed_y;

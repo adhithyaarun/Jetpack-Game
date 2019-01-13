@@ -13,6 +13,7 @@ GLFWwindow* window;
 **************************/
 
 Player player;
+bounding_box_t player_box;
 
 float screen_zoom = 1.0;
 float screen_center_x = 0.0;
@@ -63,19 +64,19 @@ void tick_input(GLFWwindow* window)
     int up = glfwGetKey(window, GLFW_KEY_UP);
     int down = glfwGetKey(window, GLFW_KEY_DOWN);
 
-    if(left) 
+    if(left && player.position.x > -3.7) 
     {
         player.position.x -= player.speed_x;
     }
-    else if(right)
+    else if(right && player.position.x < 3.7)
     {
         player.position.x += player.speed_x; 
     }
-    else if(up)
+    else if(up && player.position.y < 3.7)
     {
         player.position.y += player.speed_y;
     }
-    else if(down)
+    else if(down && player.position.y > -3.0)
     {
         player.position.y -= player.speed_y;
     }
@@ -83,6 +84,9 @@ void tick_input(GLFWwindow* window)
 
 void tick_elements() 
 {
+    player_box.x = player.position.x;
+    player_box.y = player.position.y;
+
     player.tick();
 }
 
@@ -93,7 +97,12 @@ void initGL(GLFWwindow* window, int width, int height)
     /* Objects should be created before any other gl function and shaders */
     // Create the models
 
-    player = Player(0, -3, COLOR_RED);
+    player = Player(0, -2.5, COLOR_RED);
+
+    player_box.width = 1;
+    player_box.height = 1;
+    player_box.x = player.position.x;
+    player_box.y = player.position.y;
 
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("Sample_GL.vert", "Sample_GL.frag");
@@ -115,7 +124,6 @@ void initGL(GLFWwindow* window, int width, int height)
     cout << "VERSION: " << glGetString(GL_VERSION) << endl;
     cout << "GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 }
-
 
 int main(int argc, char **argv) 
 {
