@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/debo/Adhi/Graphics/Jetpack-Game
+CMAKE_SOURCE_DIR = /home/debo/Adhi/graphics/Jetpack-Game
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/debo/Adhi/Graphics/Jetpack-Game/build
+CMAKE_BINARY_DIR = /home/debo/Adhi/graphics/Jetpack-Game/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/debo/Adhi/Graphics/Jetpack-Game/build/CMakeFiles /home/debo/Adhi/Graphics/Jetpack-Game/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles /home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/debo/Adhi/Graphics/Jetpack-Game/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -123,7 +123,7 @@ graphics_asgn1/fast:
 	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/build
 .PHONY : graphics_asgn1/fast
 
-src/ball.o: src/ballr.cpp.o
+src/ball.o: src/ball.cpp.o
 
 .PHONY : src/ball.o
 

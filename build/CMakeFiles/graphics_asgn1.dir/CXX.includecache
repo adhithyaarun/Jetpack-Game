@@ -6,21 +6,21 @@
 
 #IncludeRegexTransform: 
 
-/home/debo/Adhi/Graphics/Jetpack-Game/src/ball.cpp
+/home/debo/Adhi/graphics/Jetpack-Game/src/ball.cpp
 ball.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/ball.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/ball.h
 main.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
 
-/home/debo/Adhi/Graphics/Jetpack-Game/src/ball.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/ball.h
 main.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
 
-/home/debo/Adhi/Graphics/Jetpack-Game/src/color.cpp
+/home/debo/Adhi/graphics/Jetpack-Game/src/color.cpp
 main.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
 
-/home/debo/Adhi/Graphics/Jetpack-Game/src/input.cpp
+/home/debo/Adhi/graphics/Jetpack-Game/src/input.cpp
 iostream
 -
 cmath
@@ -40,17 +40,17 @@ glm/gtx/transform.hpp
 glm/gtc/matrix_transform.hpp
 -
 main.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
 
-/home/debo/Adhi/Graphics/Jetpack-Game/src/main.cpp
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.cpp
 main.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
 timer.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/timer.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/timer.h
 ball.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/ball.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/ball.h
 
-/home/debo/Adhi/Graphics/Jetpack-Game/src/main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
 iostream
 -
 cmath
@@ -70,29 +70,7 @@ glm/gtx/transform.hpp
 glm/gtc/matrix_transform.hpp
 -
 
-/home/debo/Adhi/Graphics/Jetpack-Game/src/nonedit.cpp
-iostream
--
-cmath
--
-fstream
--
-vector
--
-GL/glew.h
--
-GLFW/glfw3.h
--
-glm/glm.hpp
--
-glm/gtx/transform.hpp
--
-glm/gtc/matrix_transform.hpp
--
-main.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/main.h
-
-/home/debo/Adhi/Graphics/Jetpack-Game/src/other_handlers.cpp
+/home/debo/Adhi/graphics/Jetpack-Game/src/nonedit.cpp
 iostream
 -
 cmath
@@ -112,13 +90,35 @@ glm/gtx/transform.hpp
 glm/gtc/matrix_transform.hpp
 -
 main.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
 
-/home/debo/Adhi/Graphics/Jetpack-Game/src/timer.cpp
+/home/debo/Adhi/graphics/Jetpack-Game/src/other_handlers.cpp
+iostream
+-
+cmath
+-
+fstream
+-
+vector
+-
+GL/glew.h
+-
+GLFW/glfw3.h
+-
+glm/glm.hpp
+-
+glm/gtx/transform.hpp
+-
+glm/gtc/matrix_transform.hpp
+-
+main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
+
+/home/debo/Adhi/graphics/Jetpack-Game/src/timer.cpp
 timer.h
-/home/debo/Adhi/Graphics/Jetpack-Game/src/timer.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/timer.h
 GLFW/glfw3.h
 -
 
-/home/debo/Adhi/Graphics/Jetpack-Game/src/timer.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/timer.h
 

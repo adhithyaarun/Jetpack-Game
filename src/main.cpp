@@ -15,9 +15,23 @@ GLFWwindow* window;
 Player player;
 bounding_box_t player_box;
 
-float screen_zoom = 1.0;
-float screen_center_x = 0.0;
-float screen_center_y = 0.0;
+const float SCREEN_ZOOM = 1.0;
+const float SCREEN_CENTER_X = 0.0;
+const float SCREEN_CENTER_Y = 0.0;
+
+// Window Coordinate Dimensions for Player
+float RIGHT_EDGE;
+float LEFT_EDGE;
+float TOP_EDGE;
+float BOTTOM_EDGE;
+
+// Movement Restriction Dimensions for Player
+float MOVE_EDGE_R;
+float MOVE_EDGE_L;
+
+// Start Coordinates of Player
+const float START_X = -2.7;
+const float START_Y = -2.5;
 
 Timer t60(1.0 / 60);
 
@@ -64,22 +78,25 @@ void tick_input(GLFWwindow* window)
     int up = glfwGetKey(window, GLFW_KEY_UP);
     int down = glfwGetKey(window, GLFW_KEY_DOWN);
 
-    if(left && player.position.x > -3.7) 
+    // Lateral Movement and Downward movement disabled as the original game disallows it.
+    if(left && player.position.x > MOVE_EDGE_L) 
     {
         player.position.x -= player.speed_x;
     }
-    else if(right && player.position.x < 3.7)
+    if(right && player.position.x < MOVE_EDGE_R)
     {
         player.position.x += player.speed_x; 
     }
-    else if(up && player.position.y < 3.7)
+    if(up && player.position.y < (TOP_EDGE - 0.7))
     {
         player.position.y += player.speed_y;
     }
-    else if(down && player.position.y > -3.0)
+    /* 
+    if(down && player.position.y > (BOTTOM_EDGE + 0.7))
     {
         player.position.y -= player.speed_y;
     }
+    */
 }
 
 void tick_elements() 
@@ -97,10 +114,10 @@ void initGL(GLFWwindow* window, int width, int height)
     /* Objects should be created before any other gl function and shaders */
     // Create the models
 
-    player = Player(0, -2.5, COLOR_RED);
+    player = Player(START_X, START_Y, COLOR_BLUE);
 
-    player_box.width = 1;
-    player_box.height = 1;
+    player_box.width = 1.0;
+    player_box.height = 1.0;
     player_box.x = player.position.x;
     player_box.y = player.position.y;
 
@@ -167,9 +184,18 @@ bool detect_collision(bounding_box_t a, bounding_box_t b)
 
 void reset_screen() 
 {
-    float top = screen_center_y + 4 / screen_zoom;
-    float bottom = screen_center_y - 4 / screen_zoom;
-    float left = screen_center_x - 4 / screen_zoom;
-    float right = screen_center_x + 4 / screen_zoom;
+    float top = SCREEN_CENTER_Y + 4 / SCREEN_ZOOM;
+    float bottom = SCREEN_CENTER_Y - 4 / SCREEN_ZOOM;
+    float left = SCREEN_CENTER_X - 4 / SCREEN_ZOOM;
+    float right = SCREEN_CENTER_X + 4 / SCREEN_ZOOM;
+
+    RIGHT_EDGE = right - PLAYER_WIDTH;
+    LEFT_EDGE = left + PLAYER_WIDTH;
+    TOP_EDGE = top - PLAYER_HEIGHT;
+    BOTTOM_EDGE = bottom + PLAYER_HEIGHT;
+
+    MOVE_EDGE_R = RIGHT_EDGE - PLAYER_WIDTH;
+    MOVE_EDGE_L = LEFT_EDGE + PLAYER_WIDTH;
+
     Matrices.projection = glm::ortho(left, right, bottom, top, 0.1f, 500.0f);
 }

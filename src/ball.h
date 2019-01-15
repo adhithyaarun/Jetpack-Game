@@ -3,6 +3,10 @@
 #ifndef BALL_H
 #define BALL_H
 
+const float gravity = 0.03;
+const float PLAYER_WIDTH = 0.3;
+const float PLAYER_HEIGHT = 0.3;
+
 class Player 
 {
     public:

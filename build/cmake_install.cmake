@@ -1,4 +1,4 @@
-# Install script for directory: /home/debo/Adhi/Graphics/Jetpack-Game
+# Install script for directory: /home/debo/Adhi/graphics/Jetpack-Game
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/debo/Adhi/Graphics/Jetpack-Game/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/debo/Adhi/graphics/Jetpack-Game/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
