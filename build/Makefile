@@ -123,33 +123,6 @@ graphics_asgn1/fast:
 	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/build
 .PHONY : graphics_asgn1/fast
 
-src/ball.o: src/ball.cpp.o
-
-.PHONY : src/ball.o
-
-# target to build an object file
-src/ball.cpp.o:
-	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/ball.cpp.o
-.PHONY : src/ball.cpp.o
-
-src/ball.i: src/ball.cpp.i
-
-.PHONY : src/ball.i
-
-# target to preprocess a source file
-src/ball.cpp.i:
-	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/ball.cpp.i
-.PHONY : src/ball.cpp.i
-
-src/ball.s: src/ball.cpp.s
-
-.PHONY : src/ball.s
-
-# target to generate assembly for a file
-src/ball.cpp.s:
-	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/ball.cpp.s
-.PHONY : src/ball.cpp.s
-
 src/color.o: src/color.cpp.o
 
 .PHONY : src/color.o
@@ -285,6 +258,60 @@ src/other_handlers.cpp.s:
 	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/other_handlers.cpp.s
 .PHONY : src/other_handlers.cpp.s
 
+src/platform.o: src/platform.cpp.o
+
+.PHONY : src/platform.o
+
+# target to build an object file
+src/platform.cpp.o:
+	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/platform.cpp.o
+.PHONY : src/platform.cpp.o
+
+src/platform.i: src/platform.cpp.i
+
+.PHONY : src/platform.i
+
+# target to preprocess a source file
+src/platform.cpp.i:
+	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/platform.cpp.i
+.PHONY : src/platform.cpp.i
+
+src/platform.s: src/platform.cpp.s
+
+.PHONY : src/platform.s
+
+# target to generate assembly for a file
+src/platform.cpp.s:
+	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/platform.cpp.s
+.PHONY : src/platform.cpp.s
+
+src/player.o: src/player.cpp.o
+
+.PHONY : src/player.o
+
+# target to build an object file
+src/player.cpp.o:
+	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/player.cpp.o
+.PHONY : src/player.cpp.o
+
+src/player.i: src/player.cpp.i
+
+.PHONY : src/player.i
+
+# target to preprocess a source file
+src/player.cpp.i:
+	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/player.cpp.i
+.PHONY : src/player.cpp.i
+
+src/player.s: src/player.cpp.s
+
+.PHONY : src/player.s
+
+# target to generate assembly for a file
+src/player.cpp.s:
+	$(MAKE) -f CMakeFiles/graphics_asgn1.dir/build.make CMakeFiles/graphics_asgn1.dir/src/player.cpp.s
+.PHONY : src/player.cpp.s
+
 src/timer.o: src/timer.cpp.o
 
 .PHONY : src/timer.o
@@ -321,9 +348,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... graphics_asgn1"
-	@echo "... src/ball.o"
-	@echo "... src/ball.i"
-	@echo "... src/ball.s"
 	@echo "... src/color.o"
 	@echo "... src/color.i"
 	@echo "... src/color.s"
@@ -339,6 +363,12 @@ help:
 	@echo "... src/other_handlers.o"
 	@echo "... src/other_handlers.i"
 	@echo "... src/other_handlers.s"
+	@echo "... src/platform.o"
+	@echo "... src/platform.i"
+	@echo "... src/platform.s"
+	@echo "... src/player.o"
+	@echo "... src/player.i"
+	@echo "... src/player.s"
 	@echo "... src/timer.o"
 	@echo "... src/timer.i"
 	@echo "... src/timer.s"

@@ -4,12 +4,13 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/debo/Adhi/graphics/Jetpack-Game/src/ball.cpp" "/home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/graphics_asgn1.dir/src/ball.cpp.o"
   "/home/debo/Adhi/graphics/Jetpack-Game/src/color.cpp" "/home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/graphics_asgn1.dir/src/color.cpp.o"
   "/home/debo/Adhi/graphics/Jetpack-Game/src/input.cpp" "/home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/graphics_asgn1.dir/src/input.cpp.o"
   "/home/debo/Adhi/graphics/Jetpack-Game/src/main.cpp" "/home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/graphics_asgn1.dir/src/main.cpp.o"
   "/home/debo/Adhi/graphics/Jetpack-Game/src/nonedit.cpp" "/home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/graphics_asgn1.dir/src/nonedit.cpp.o"
   "/home/debo/Adhi/graphics/Jetpack-Game/src/other_handlers.cpp" "/home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/graphics_asgn1.dir/src/other_handlers.cpp.o"
+  "/home/debo/Adhi/graphics/Jetpack-Game/src/platform.cpp" "/home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/graphics_asgn1.dir/src/platform.cpp.o"
+  "/home/debo/Adhi/graphics/Jetpack-Game/src/player.cpp" "/home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/graphics_asgn1.dir/src/player.cpp.o"
   "/home/debo/Adhi/graphics/Jetpack-Game/src/timer.cpp" "/home/debo/Adhi/graphics/Jetpack-Game/build/CMakeFiles/graphics_asgn1.dir/src/timer.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

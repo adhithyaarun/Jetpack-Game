@@ -1,7 +1,7 @@
 #include "main.h"
 
-#ifndef BALL_H
-#define BALL_H
+#ifndef PLAYER_H
+#define PLAYER_H
 
 const float gravity = 0.03;
 const float PLAYER_WIDTH = 0.3;

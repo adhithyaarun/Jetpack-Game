@@ -1,6 +1,7 @@
 #include "main.h"
+#include "player.h"
+#include "platform.h"
 #include "timer.h"
-#include "ball.h"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ GLFWwindow* window;
 **************************/
 
 Player player;
+Platform platform;
 bounding_box_t player_box;
 
 const float SCREEN_ZOOM = 1.0;
@@ -69,6 +71,7 @@ void draw()
 
     // Scene render
     player.draw(VP);
+    platform.draw(VP);
 }
 
 void tick_input(GLFWwindow* window) 
@@ -105,6 +108,7 @@ void tick_elements()
     player_box.y = player.position.y;
 
     player.tick();
+    platform.tick();
 }
 
 /* Initialize the OpenGL rendering properties */
@@ -115,6 +119,7 @@ void initGL(GLFWwindow* window, int width, int height)
     // Create the models
 
     player = Player(START_X, START_Y, COLOR_BLUE);
+    platform = Platform(0.0, -3.7, COLOR_GREY);
 
     player_box.width = 1.0;
     player_box.height = 1.0;

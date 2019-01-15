@@ -1,4 +1,4 @@
-#include "ball.h"
+#include "player.h"
 #include "main.h"
 
 Player::Player(float x, float y, color_t color) 
@@ -143,7 +143,7 @@ void Player::set_position(float x, float y)
 
 void Player::tick() 
 {
-   if(this->position.y > -3.0)
+   if(this->position.y > -3.2)
    {
         this->position.y -= gravity;
    }

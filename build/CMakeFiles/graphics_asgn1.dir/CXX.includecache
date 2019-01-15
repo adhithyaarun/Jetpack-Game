@@ -6,16 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/debo/Adhi/graphics/Jetpack-Game/src/ball.cpp
-ball.h
-/home/debo/Adhi/graphics/Jetpack-Game/src/ball.h
-main.h
-/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
-
-/home/debo/Adhi/graphics/Jetpack-Game/src/ball.h
-main.h
-/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
-
 /home/debo/Adhi/graphics/Jetpack-Game/src/color.cpp
 main.h
 /home/debo/Adhi/graphics/Jetpack-Game/src/main.h
@@ -45,10 +35,12 @@ main.h
 /home/debo/Adhi/graphics/Jetpack-Game/src/main.cpp
 main.h
 /home/debo/Adhi/graphics/Jetpack-Game/src/main.h
+player.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/player.h
+platform.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/platform.h
 timer.h
 /home/debo/Adhi/graphics/Jetpack-Game/src/timer.h
-ball.h
-/home/debo/Adhi/graphics/Jetpack-Game/src/ball.h
 
 /home/debo/Adhi/graphics/Jetpack-Game/src/main.h
 iostream
@@ -111,6 +103,26 @@ glm/gtx/transform.hpp
 -
 glm/gtc/matrix_transform.hpp
 -
+main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
+
+/home/debo/Adhi/graphics/Jetpack-Game/src/platform.cpp
+platform.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/platform.h
+main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
+
+/home/debo/Adhi/graphics/Jetpack-Game/src/platform.h
+main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
+
+/home/debo/Adhi/graphics/Jetpack-Game/src/player.cpp
+player.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/player.h
+main.h
+/home/debo/Adhi/graphics/Jetpack-Game/src/main.h
+
+/home/debo/Adhi/graphics/Jetpack-Game/src/player.h
 main.h
 /home/debo/Adhi/graphics/Jetpack-Game/src/main.h
 
