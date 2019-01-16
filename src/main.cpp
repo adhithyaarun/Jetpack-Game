@@ -19,10 +19,6 @@ Platform platform_top;
 
 bounding_box_t player_box;
 
-const float SCREEN_ZOOM = 1.0;
-const float SCREEN_CENTER_X = 0.0;
-const float SCREEN_CENTER_Y = 0.0;
-
 // Window Coordinate Dimensions for Player
 float RIGHT_EDGE;
 float LEFT_EDGE;
@@ -83,6 +79,7 @@ void tick_input(GLFWwindow* window)
     int right = glfwGetKey(window, GLFW_KEY_RIGHT);
     int up = glfwGetKey(window, GLFW_KEY_UP);
     int down = glfwGetKey(window, GLFW_KEY_DOWN);
+    int space = glfwGetKey(window, GLFW_KEY_SPACE);
 
     // Lateral Movement and Downward movement disabled as the original game disallows it.
     if(left && player.position.x > MOVE_EDGE_L) 
@@ -93,7 +90,7 @@ void tick_input(GLFWwindow* window)
     {
         player.position.x += player.speed_x; 
     }
-    if(up && player.position.y < (TOP_EDGE - 0.7))
+    if((up || space) && player.position.y < (TOP_EDGE - 0.7))
     {
         player.freefall = false;
         player.position.y += player.speed_y;

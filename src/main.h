@@ -73,9 +73,12 @@ struct bounding_box_t {
 
 bool detect_collision(bounding_box_t a, bounding_box_t b);
 
-extern const float SCREEN_ZOOM;
-extern const float SCREEN_CENTER_X;
-extern const float SCREEN_CENTER_Y;
+extern float SCREEN_ZOOM;
+extern float SCREEN_CENTER_X;
+extern float SCREEN_CENTER_Y;
+
+void zoom_in();
+void zoom_out();
 
 void reset_screen();
 

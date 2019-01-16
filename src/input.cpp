@@ -19,6 +19,10 @@ bool old_cki;
 double drag_oldx = -1;
 double drag_oldy = -1;
 
+float SCREEN_ZOOM = 1.0;
+float SCREEN_CENTER_X = 0.0;
+float SCREEN_CENTER_Y = 0.0;
+
 using namespace std;
 
 /* Executed when a regular key is pressed/released/held-down */
@@ -100,5 +104,23 @@ void mouseButton(GLFWwindow* window, int button, int action, int mods)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) 
 {
-    // Do something
+    if(yoffset < 0 && SCREEN_ZOOM > 0.1)
+    {
+        zoom_out();
+    }
+    else if(yoffset > 0 && SCREEN_ZOOM < 1.0)
+    {
+        zoom_in();
+    }
+    reset_screen();
+}
+
+void zoom_in()
+{
+    SCREEN_ZOOM += 0.1;
+}
+
+void zoom_out()
+{
+    SCREEN_ZOOM -= 0.1;
 }
