@@ -14,7 +14,9 @@ GLFWwindow* window;
 **************************/
 
 Player player;
-Platform platform;
+Platform platform_bottom;
+Platform platform_top;
+
 bounding_box_t player_box;
 
 const float SCREEN_ZOOM = 1.0;
@@ -33,7 +35,7 @@ float MOVE_EDGE_L;
 
 // Start Coordinates of Player
 const float START_X = -2.7;
-const float START_Y = -2.5;
+const float START_Y = -2.95;
 
 Timer t60(1.0 / 60);
 
@@ -71,7 +73,8 @@ void draw()
 
     // Scene render
     player.draw(VP);
-    platform.draw(VP);
+    platform_bottom.draw(VP);
+    platform_top.draw(VP);
 }
 
 void tick_input(GLFWwindow* window) 
@@ -92,7 +95,12 @@ void tick_input(GLFWwindow* window)
     }
     if(up && player.position.y < (TOP_EDGE - 0.7))
     {
+        player.freefall = false;
         player.position.y += player.speed_y;
+    }
+    else
+    {
+        player.freefall = true;
     }
     /* 
     if(down && player.position.y > (BOTTOM_EDGE + 0.7))
@@ -108,7 +116,8 @@ void tick_elements()
     player_box.y = player.position.y;
 
     player.tick();
-    platform.tick();
+    platform_bottom.tick();
+    platform_top.tick();
 }
 
 /* Initialize the OpenGL rendering properties */
@@ -119,7 +128,8 @@ void initGL(GLFWwindow* window, int width, int height)
     // Create the models
 
     player = Player(START_X, START_Y, COLOR_BLUE);
-    platform = Platform(0.0, -3.7, COLOR_GREY);
+    platform_bottom = Platform(0.0, -3.7, COLOR_GREY);
+    platform_top = Platform(0.0, 3.8, COLOR_GREY);
 
     player_box.width = 1.0;
     player_box.height = 1.0;

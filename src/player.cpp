@@ -7,6 +7,8 @@ Player::Player(float x, float y, color_t color)
     this->rotation = 0;
     speed_x = 0.07;
     speed_y = 0.07;
+    freefall = false;
+    gravity = GRAVITY;
 
     // static const GLfloat vertex_buffer_data[] = {
     //     // Body (top-left)
@@ -145,11 +147,24 @@ void Player::tick()
 {
    if(this->position.y > -3.2)
    {
-        this->position.y -= gravity;
+       if(this->freefall)
+       {
+            this->gravity += GRAVITY_INCR;   
+       }
+       else
+       {
+            gravity = GRAVITY;
+       }
+       this->position.y -= gravity;
    }
+    
+    if(this->position.y < -3.2)
+    {
+        this->position.y = -3.2;
+    }
 
-    // this->position.x -= speed_x;
     // this->position.y -= speed_y;
+    // this->position.x -= speed_x;
     // this->rotation += ((speed_x + speed_y) / 2);
 }
 

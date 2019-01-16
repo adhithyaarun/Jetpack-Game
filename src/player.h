@@ -3,7 +3,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-const float gravity = 0.03;
+const float GRAVITY = 0.03;
+const float GRAVITY_INCR = 0.002;
 const float PLAYER_WIDTH = 0.3;
 const float PLAYER_HEIGHT = 0.3;
 
@@ -19,6 +20,8 @@ class Player
         void tick();
         double speed_x;
         double speed_y;
+        float gravity;
+        bool freefall;
     private:
         VAO* object;
 };
