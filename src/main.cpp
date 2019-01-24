@@ -1,6 +1,9 @@
 #include "main.h"
 #include "player.h"
 #include "platform.h"
+#include "coin.h"
+#include "shape.h"
+#include "fire.h"
 #include "timer.h"
 
 using namespace std;
@@ -13,9 +16,14 @@ GLFWwindow* window;
 * Customizable functions *
 **************************/
 
+float SCREEN_CENTER_X = 0.0;
+float SCREEN_CENTER_Y = 0.0;
+
 Player player;
-Platform platform_bottom;
-Platform platform_top;
+Platform platform;
+Cieling cieling;
+vector<Coin> coins;
+FireBeam firebeam;
 
 bounding_box_t player_box;
 
@@ -26,12 +34,15 @@ float TOP_EDGE;
 float BOTTOM_EDGE;
 
 // Movement Restriction Dimensions for Player
-float MOVE_EDGE_R;
-float MOVE_EDGE_L;
+// float MOVE_EDGE_R;
+// float MOVE_EDGE_L;
+const float MOVE_EDGE_T = 3.0;
 
 // Start Coordinates of Player
 const float START_X = -2.7;
 const float START_Y = -2.95;
+
+bool MOVE_EYE = true;
 
 Timer t60(1.0 / 60);
 
@@ -47,9 +58,9 @@ void draw()
     glUseProgram(programID);
 
     // Eye - Location of camera. Don't change unless you are sure!!
-    glm::vec3 eye(0, 0, 5);
+    glm::vec3 eye(player.position.x, 0, 5);
     // Target - Where is the camera looking at.  Don't change unless you are sure!!
-    glm::vec3 target(0, 0, 0);
+    glm::vec3 target(player.position.x, 0, 0);
     // Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
     glm::vec3 up(0, 1, 0);
 
@@ -68,29 +79,41 @@ void draw()
     glm::mat4 MVP;  // MVP = Projection * View * Model
 
     // Scene render
+    platform.draw(VP);
+    cieling.draw(VP);
+    // Draw coins
+    for(int i=0; i<coins.size(); ++i)
+    {
+        coins[i].draw(VP);
+    }
+    firebeam.draw(VP);
     player.draw(VP);
-    platform_bottom.draw(VP);
-    platform_top.draw(VP);
 }
 
 void tick_input(GLFWwindow* window) 
 {
     int left  = glfwGetKey(window, GLFW_KEY_LEFT);
-    int right = glfwGetKey(window, GLFW_KEY_RIGHT);
-    int up = glfwGetKey(window, GLFW_KEY_UP);
-    int down = glfwGetKey(window, GLFW_KEY_DOWN);
-    int space = glfwGetKey(window, GLFW_KEY_SPACE);
+    int a_key = glfwGetKey(window, GLFW_KEY_A);
 
-    // Lateral Movement and Downward movement disabled as the original game disallows it.
-    if(left && player.position.x > MOVE_EDGE_L) 
+    int right = glfwGetKey(window, GLFW_KEY_RIGHT);
+    int d_key = glfwGetKey(window, GLFW_KEY_D);
+    
+    int up = glfwGetKey(window, GLFW_KEY_UP);
+    int space = glfwGetKey(window, GLFW_KEY_SPACE);
+    int w_key = glfwGetKey(window, GLFW_KEY_W);
+    
+    int down = glfwGetKey(window, GLFW_KEY_DOWN);
+    int s_key = glfwGetKey(window, GLFW_KEY_S);
+
+    if((left || a_key) && player.position.x > -5.0/*&& player.position.x > MOVE_EDGE_L*/) 
     {
         player.position.x -= player.speed_x;
     }
-    if(right && player.position.x < MOVE_EDGE_R)
+    if((right || d_key) /*&& player.position.x < MOVE_EDGE_R*/)
     {
         player.position.x += player.speed_x; 
     }
-    if((up || space) && player.position.y < (TOP_EDGE - 0.7))
+    if((up || space || w_key) && player.position.y < MOVE_EDGE_T)
     {
         player.freefall = false;
         player.position.y += player.speed_y;
@@ -99,12 +122,11 @@ void tick_input(GLFWwindow* window)
     {
         player.freefall = true;
     }
-    /* 
-    if(down && player.position.y > (BOTTOM_EDGE + 0.7))
+
+    if(!right && !left)
     {
-        player.position.y -= player.speed_y;
+        player.position.x += 0.02;
     }
-    */
 }
 
 void tick_elements() 
@@ -113,8 +135,26 @@ void tick_elements()
     player_box.y = player.position.y;
 
     player.tick();
-    platform_bottom.tick();
-    platform_top.tick();
+    platform.tick();
+    cieling.tick();
+    firebeam.tick();
+
+    // Additional speed of movement if player moves towards the right using arrow keys
+    for (int i = 0; i < coins.size(); ++i)
+    {
+        if(detect_collision(coins[i].boundary, player_box))
+        {
+            player.score += 10 * coins[i].multiplier;
+            coins.erase(coins.begin() + i);
+        }
+    }
+
+    if(detect_collision(firebeam.beam.boundary, player_box))
+    {
+        player.position.y = -3.2;
+    }
+
+    cout << "Score: " << player.score << endl;
 }
 
 /* Initialize the OpenGL rendering properties */
@@ -125,11 +165,44 @@ void initGL(GLFWwindow* window, int width, int height)
     // Create the models
 
     player = Player(START_X, START_Y, COLOR_BLUE);
-    platform_bottom = Platform(0.0, -3.7, COLOR_GREY);
-    platform_top = Platform(0.0, 3.8, COLOR_GREY);
+    platform = Platform(0.0, -3.7, COLOR_GREY);
+    cieling = Cieling(0.0, 3.8, COLOR_GREY);
+    firebeam = FireBeam(0.0, 0.0, 2.0);
+    
+    // Generate Coins 
+    Coin new_coin;
+    int sign_determinor_x;
+    int sign_determinor_y;
+    int random_colour;
 
-    player_box.width = 1.0;
-    player_box.height = 1.0;
+    srand(time(0));
+    while(coins.size() < 20)
+    {
+        sign_determinor_x = (rand()%2 == 0) ? 1 : -1;
+        sign_determinor_y = (rand()%2 == 0) ? 1 : -1;
+        random_colour = rand()%3;
+
+        switch(random_colour)
+        {
+            case 0:
+                new_coin = Coin((rand()%6)*sign_determinor_x, (rand()%3)*sign_determinor_y, COLOR_YELLOW);
+                break;
+            case 1:
+                new_coin = Coin((rand()%6)*sign_determinor_x, (rand()%3)*sign_determinor_y, COLOR_ORANGE);
+                break;
+            case 2:
+                new_coin = Coin((rand()%6)*sign_determinor_x, (rand()%3)*sign_determinor_y, COLOR_GREEN);
+                break;
+            default:
+                break;
+        }
+
+        coins.push_back(new_coin);
+    }
+
+    // Player boundary box
+    player_box.width = 0.6;
+    player_box.height = 1.2;
     player_box.x = player.position.x;
     player_box.y = player.position.y;
 
@@ -137,7 +210,6 @@ void initGL(GLFWwindow* window, int width, int height)
     programID = LoadShaders("Sample_GL.vert", "Sample_GL.frag");
     // Get a handle for our "MVP" uniform
     Matrices.MatrixID = glGetUniformLocation(programID, "MVP");
-
 
     reshapeWindow (window, width, height);
 
@@ -206,8 +278,8 @@ void reset_screen()
     TOP_EDGE = top - PLAYER_HEIGHT;
     BOTTOM_EDGE = bottom + PLAYER_HEIGHT;
 
-    MOVE_EDGE_R = RIGHT_EDGE - PLAYER_WIDTH;
-    MOVE_EDGE_L = LEFT_EDGE + PLAYER_WIDTH;
+    // MOVE_EDGE_R = RIGHT_EDGE - PLAYER_WIDTH;
+    // MOVE_EDGE_L = LEFT_EDGE + PLAYER_WIDTH;
 
     Matrices.projection = glm::ortho(left, right, bottom, top, 0.1f, 500.0f);
 }

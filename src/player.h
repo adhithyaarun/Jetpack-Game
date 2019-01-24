@@ -22,6 +22,7 @@ class Player
         double speed_y;
         float gravity;
         bool freefall;
+        float score;
     private:
         VAO* object;
 };

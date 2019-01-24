@@ -5,6 +5,7 @@ Player::Player(float x, float y, color_t color)
 {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
+    this->score = 0;
     speed_x = 0.07;
     speed_y = 0.07;
     freefall = false;
@@ -145,8 +146,8 @@ void Player::set_position(float x, float y)
 
 void Player::tick() 
 {
-   if(this->position.y > -3.2)
-   {
+    if(this->position.y > -3.2)
+    {
        if(this->freefall)
        {
             this->gravity += GRAVITY_INCR;   
@@ -156,7 +157,7 @@ void Player::tick()
             gravity = GRAVITY;
        }
        this->position.y -= gravity;
-   }
+    }
     
     if(this->position.y < -3.2)
     {
