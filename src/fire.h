@@ -8,17 +8,17 @@ class FireLine
 {
   public:
     FireLine() {}
-    FireLine(float x, float y);
+    FireLine(float x, float y, float length, float angle);
     glm::vec3 position;
-    float rotation;
-    bounding_box_t boundary;
     void draw(glm::mat4 VP);
     void set_position(float x, float y);
     void tick();
     double length;
     double angle;
+    bool disabled;
     Circle endpoint1;
     Circle endpoint2;
+    Rectangle beam;
 };
 
 class FireBeam
@@ -32,6 +32,7 @@ class FireBeam
     void tick();
     double length;
     bool down;
+    bool disabled;
     Circle endpoint1;
     Circle endpoint2;
     Rectangle beam;

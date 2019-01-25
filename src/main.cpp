@@ -4,6 +4,7 @@
 #include "coin.h"
 #include "shape.h"
 #include "fire.h"
+#include "waterballoon.h"
 #include "timer.h"
 
 using namespace std;
@@ -23,7 +24,9 @@ Player player;
 Platform platform;
 Cieling cieling;
 vector<Coin> coins;
-FireBeam firebeam;
+vector<FireBeam> firebeams;
+vector<FireLine> firelines;
+vector<WaterBalloon> waterballoons;
 
 bounding_box_t player_box;
 
@@ -43,6 +46,8 @@ const float START_X = -2.7;
 const float START_Y = -2.95;
 
 bool MOVE_EYE = true;
+int PREV_FIRE;
+int WATER_REFILL = 0;
 
 Timer t60(1.0 / 60);
 
@@ -86,7 +91,31 @@ void draw()
     {
         coins[i].draw(VP);
     }
-    firebeam.draw(VP);
+    
+    for(int i=0; i<firebeams.size(); ++i)
+    {
+        for(int i=0; i<firebeams.size(); ++i)
+        {
+            firebeams[i].draw(VP);
+        }    
+    }
+
+    for(int i=0; i<firelines.size(); ++i)
+    {
+        for(int i=0; i<firelines.size(); ++i)
+        {
+            firelines[i].draw(VP);
+        }    
+    }
+    
+    for(int i=0; i<waterballoons.size(); ++i)
+    {
+        for(int i=0; i<waterballoons.size(); ++i)
+        {
+            waterballoons[i].draw(VP);
+        }    
+    }
+
     player.draw(VP);
 }
 
@@ -104,6 +133,8 @@ void tick_input(GLFWwindow* window)
     
     int down = glfwGetKey(window, GLFW_KEY_DOWN);
     int s_key = glfwGetKey(window, GLFW_KEY_S);
+
+    int x_key = glfwGetKey(window, GLFW_KEY_X);
 
     if((left || a_key) && player.position.x > -5.0/*&& player.position.x > MOVE_EDGE_L*/) 
     {
@@ -127,6 +158,13 @@ void tick_input(GLFWwindow* window)
     {
         player.position.x += 0.02;
     }
+
+    if(x_key && (WATER_REFILL == 0))
+    {
+        WaterBalloon new_balloon = WaterBalloon(player.position.x, player.position.y + 0.2);
+        waterballoons.push_back(new_balloon);
+        WATER_REFILL = 40;
+    }
 }
 
 void tick_elements() 
@@ -137,21 +175,162 @@ void tick_elements()
     player.tick();
     platform.tick();
     cieling.tick();
-    firebeam.tick();
+    
+    if(WATER_REFILL > 0)
+    {
+        WATER_REFILL--;
+    }
 
-    // Additional speed of movement if player moves towards the right using arrow keys
+    // Player-Firebeam collision detection
+    for(int i=0; i<firebeams.size(); ++i)
+    {
+        firebeams[i].tick();
+        if(!firebeams[i].disabled && detect_collision(firebeams[i].beam.boundary, player_box))
+        {
+            player.position.y = -3.2;
+        }
+        else if(firebeams[i].position.x < (player.position.x - 10.0))
+        {
+            firebeams.erase(firebeams.begin() + i);
+            --i;
+        }
+    }
+    
+    // Player-Fireline collision detection
+    for(int i=0; i<firelines.size(); ++i)
+    {
+        firelines[i].tick();
+        if(!firelines[i].disabled && detect_collision(firelines[i].beam.boundary, player_box))
+        {
+            player.position.y = -3.2;
+        }
+        else if(firelines[i].position.x < (player.position.x - 10.0))
+        {
+            firelines.erase(firelines.begin() + i);
+            --i;
+        }
+    }
+
+    // Player-Coin collision detection
     for (int i = 0; i < coins.size(); ++i)
     {
         if(detect_collision(coins[i].boundary, player_box))
         {
-            player.score += 10 * coins[i].multiplier;
+            player.score += 1 * coins[i].multiplier;
             coins.erase(coins.begin() + i);
+            --i;
+        }
+        else if(coins[i].position.x < (player.position.x - 8.0))
+        {
+            coins.erase(coins.begin() + i);
+            --i;
+        }
+    }
+    
+    bool water_complete = false;
+
+    for (int i = 0; i < waterballoons.size(); ++i)
+    {
+        water_complete = false;
+        waterballoons[i].tick();
+        if(waterballoons[i].position.y <= -3.2)
+        {
+            waterballoons.erase(waterballoons.begin() + i);
+        }
+        for(int j = 0; j < firebeams.size(); ++j)
+        {
+            if(detect_collision(waterballoons[i].boundary, firebeams[j].beam.boundary))
+            {
+                firebeams[j].disabled = true;
+                water_complete = true;
+                break;
+            }
+        }
+        if(water_complete)
+        {
+            waterballoons.erase(waterballoons.begin() + i);
+            --i;
+        }
+        else
+        {
+            for (int j = 0; j < firelines.size(); ++j)
+            {
+                if (detect_collision(waterballoons[i].boundary, firelines[j].beam.boundary))
+                {
+                    firelines[j].disabled = true;
+                    water_complete = true;
+                    break;
+                }
+            }
+            if(water_complete)
+            {
+                waterballoons.erase(waterballoons.begin() + i);
+                --i;
+            }
         }
     }
 
-    if(detect_collision(firebeam.beam.boundary, player_box))
+    // Generate Coins
+    Coin new_coin;
+    int sign_determinor_x;
+    int sign_determinor_y;
+    int random_colour;
+
+    srand(time(0));
+    while(coins.size() < 30)
     {
-        player.position.y = -3.2;
+        sign_determinor_x = (rand() % 2 == 0) ? 1 : -1;
+        sign_determinor_y = (rand() % 2 == 0) ? 1 : -1;
+        random_colour = rand() % 3;
+
+        switch (random_colour)
+        {
+        case 0:
+            new_coin = Coin(((rand() % 6) * sign_determinor_x) + player.position.x + 12.0, (rand() % 4) * sign_determinor_y, COLOR_YELLOW);
+            break;
+        case 1:
+            new_coin = Coin(((rand() % 6) * sign_determinor_x) + player.position.x + 12.0, (rand() % 4) * sign_determinor_y, COLOR_ORANGE);
+            break;
+        case 2:
+            new_coin = Coin(((rand() % 6) * sign_determinor_x) + player.position.x + 12.0, (rand() % 4) * sign_determinor_y, COLOR_GREEN);
+            break;
+        default:
+            break;
+        }
+
+        coins.push_back(new_coin);
+    }
+
+    FireBeam new_beam;
+    FireLine new_line;
+    int new_x;
+    int rand_length;
+    int rand_angle;
+
+    srand(time(0));
+    while(firebeams.size() + firelines.size() < 12)
+    {
+        new_x = PREV_FIRE + 8.0 + (rand() % 5);
+        sign_determinor_x = (rand() % 2 == 0) ? 1 : -1;
+        sign_determinor_y = (rand() % 2 == 0) ? 1 : -1;
+        rand_length = (rand() % 3) + 1;
+
+        switch (sign_determinor_x)
+        {
+        case 1:
+            new_beam = FireBeam(new_x, (rand() % 3) * sign_determinor_y, rand_length);
+            firebeams.push_back(new_beam);
+            break;
+        case -1:
+            rand_angle = rand() % 50;
+            new_line = FireLine(new_x, (rand() % 2) * sign_determinor_y, rand_length, rand_angle);
+            firelines.push_back(new_line);
+            break;
+        default:
+            break;
+        }
+
+        PREV_FIRE = new_x;
     }
 
     cout << "Score: " << player.score << endl;
@@ -167,37 +346,70 @@ void initGL(GLFWwindow* window, int width, int height)
     player = Player(START_X, START_Y, COLOR_BLUE);
     platform = Platform(0.0, -3.7, COLOR_GREY);
     cieling = Cieling(0.0, 3.8, COLOR_GREY);
-    firebeam = FireBeam(0.0, 0.0, 2.0);
-    
-    // Generate Coins 
+
+    // Generate Coins
     Coin new_coin;
     int sign_determinor_x;
     int sign_determinor_y;
     int random_colour;
 
     srand(time(0));
-    while(coins.size() < 20)
+    while (coins.size() < 30)
     {
-        sign_determinor_x = (rand()%2 == 0) ? 1 : -1;
-        sign_determinor_y = (rand()%2 == 0) ? 1 : -1;
-        random_colour = rand()%3;
+        sign_determinor_x = (rand() % 2 == 0) ? 1 : -1;
+        sign_determinor_y = (rand() % 2 == 0) ? 1 : -1;
+        random_colour = rand() % 3;
 
-        switch(random_colour)
+        switch (random_colour)
         {
-            case 0:
-                new_coin = Coin((rand()%6)*sign_determinor_x, (rand()%3)*sign_determinor_y, COLOR_YELLOW);
-                break;
+        case 0:
+            new_coin = Coin((rand() % 6) * sign_determinor_x, (rand() % 3) * sign_determinor_y, COLOR_YELLOW);
+            break;
+        case 1:
+            new_coin = Coin((rand() % 6) * sign_determinor_x, (rand() % 3) * sign_determinor_y, COLOR_ORANGE);
+            break;
+        case 2:
+            new_coin = Coin((rand() % 6) * sign_determinor_x, (rand() % 3) * sign_determinor_y, COLOR_GREEN);
+            break;
+        default:
+            break;
+        }
+
+        coins.push_back(new_coin);
+    }
+    
+    // Generating Fire beams
+    PREV_FIRE = player.position.x + 10.0;
+    FireBeam new_beam;
+    FireLine new_line;
+    int new_x;
+    int rand_length;
+    int rand_angle;
+
+    srand(time(0));
+    while(firebeams.size() + firelines.size() < 12)
+    {
+        new_x = PREV_FIRE + 8.0 + (rand()%5);
+        sign_determinor_x = (rand() % 2 == 0) ? 1 : -1;
+        sign_determinor_y = (rand() % 2 == 0) ? 1 : -1;
+        rand_length = (rand() % 3) + 1;
+
+        switch(sign_determinor_x)
+        {
             case 1:
-                new_coin = Coin((rand()%6)*sign_determinor_x, (rand()%3)*sign_determinor_y, COLOR_ORANGE);
+                new_beam = FireBeam(new_x, (rand() % 3) * sign_determinor_y, rand_length);
+                firebeams.push_back(new_beam);
                 break;
-            case 2:
-                new_coin = Coin((rand()%6)*sign_determinor_x, (rand()%3)*sign_determinor_y, COLOR_GREEN);
+            case -1:
+                rand_angle = rand() % 50;
+                new_line = FireLine(new_x, (rand() % 2) * sign_determinor_y, rand_length, rand_angle);
+                firelines.push_back(new_line);
                 break;
             default:
                 break;
         }
 
-        coins.push_back(new_coin);
+        PREV_FIRE = new_x;
     }
 
     // Player boundary box

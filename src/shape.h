@@ -24,7 +24,7 @@ class Rectangle
 {
   public:
     Rectangle() {}
-    Rectangle(float x, float y, float l, float b, color_t color);
+    Rectangle(float x, float y, float l, float b, float angle, color_t color);
     glm::vec3 position;
     float rotation;
     bounding_box_t boundary;
