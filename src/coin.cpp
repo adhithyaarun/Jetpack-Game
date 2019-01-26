@@ -62,7 +62,7 @@ Coin::Coin(float x, float y, color_t color)
         }
     }
 
-    this->object = create3DObject(GL_TRIANGLES, 20 * 3, vertex_buffer_data, color, GL_FILL);
+    this->object = create3DObject(GL_TRIANGLES, 20 * 3, vertex_buffer_data, color, GL_LINE);
 }
 
 void Coin::draw(glm::mat4 VP)

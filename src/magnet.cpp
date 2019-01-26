@@ -34,5 +34,5 @@ void Magnet::set_position(float x, float y)
 
 void Magnet::tick()
 {
-    this->power += BASE_SPEED_Y;
+    ;
 }

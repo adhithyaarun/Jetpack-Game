@@ -1,4 +1,5 @@
 #include "main.h"
+#include "shape.h"
 
 #ifndef PLAYER_H
 #define PLAYER_H
@@ -23,6 +24,21 @@ class Player
         float gravity;
         bool freefall;
         float score;
+    private:
+        VAO* object;
+};
+
+class Propulsion
+{
+    public:
+        Propulsion() {}
+        Propulsion(float x, float y);
+        glm::vec3 position;
+        float rotation;
+        void draw(glm::mat4 VP);
+        void set_position(float x, float y);
+        void tick();
+        bool disappear;
     private:
         VAO* object;
 };

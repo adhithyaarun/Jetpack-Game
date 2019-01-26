@@ -9,6 +9,7 @@
 #include "display.h"
 #include "magnet.h"
 #include "boomerang.h"
+#include "viserion.h"
 #include "timer.h"
 
 using namespace std;
@@ -31,12 +32,14 @@ vector<Coin> coins;
 vector<FireBeam> firebeams;
 vector<FireLine> firelines;
 vector<WaterBalloon> waterballoons;
+vector<Propulsion> propulsions;
 Multiplier multiplier;
 Shield shield;
 Display display;
 Digit stage;
-Magnet magnet;
+vector<Magnet> magnets;
 Boomerang boom;
+vector<Viserion> viserions;
 
 bounding_box_t player_box;
 
@@ -52,6 +55,7 @@ float BOTTOM_EDGE;
 // float MOVE_EDGE_R;
 // float MOVE_EDGE_L;
 const float MOVE_EDGE_T = 3.0;
+float EYE_POS = -100.0;
 
 // Start Coordinates of Player
 const float START_X = -2.7;
@@ -61,15 +65,13 @@ bool MOVE_EYE = true;
 int PREV_FIRE;
 
 int WATER_REFILL = 0;
-bool POWER_UP = false;
+bool POWER_UP = true;
 bool MULTIPLIER = false;
 bool SHIELD = false;
-bool MAGNET = false;
 bool BOOMERANG = false;
 
 Timer t60(1.0 / 60);
 Timer power_up;
-Timer magnet_timer;
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
@@ -82,10 +84,15 @@ void draw()
     // Don't change unless you know what you are doing
     glUseProgram(programID);
 
+    if(EYE_POS < player.position.x)
+    {
+        EYE_POS= player.position.x;
+    }
+
     // Eye - Location of camera. Don't change unless you are sure!!
-    glm::vec3 eye(player.position.x, 0, 5);
+    glm::vec3 eye(EYE_POS, 0, 5);
     // Target - Where is the camera looking at.  Don't change unless you are sure!!
-    glm::vec3 target(player.position.x, 0, 0);
+    glm::vec3 target(EYE_POS, 0, 0);
     // Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
     glm::vec3 up(0, 1, 0);
 
@@ -144,9 +151,9 @@ void draw()
         shield.draw(VP);
     }
 
-    if(MAGNET)
+    for(int i=0; i<magnets.size(); ++i)
     {
-        magnet.draw(VP);
+        magnets[i].draw(VP);
     }
 
     if(BOOMERANG)
@@ -156,6 +163,16 @@ void draw()
 
     display.draw(VP);
     stage.draw(VP);
+    
+    for(int i=0; i<viserions.size(); ++i)
+    {
+        viserions[i].draw(VP);
+    }
+
+    for(int i=0; i<propulsions.size(); ++i)
+    {
+        propulsions[i].draw(VP);
+    }
 
     player.draw(VP);
 }
@@ -177,7 +194,7 @@ void tick_input(GLFWwindow* window)
 
     int x_key = glfwGetKey(window, GLFW_KEY_X);
 
-    if((left || a_key) && player.position.x > -5.0/*&& player.position.x > MOVE_EDGE_L*/) 
+    if((left || a_key) && player.position.x > -5.0 && player.position.x > (EYE_POS - (4 / SCREEN_ZOOM) + PLAYER_WIDTH)) 
     {
         player.position.x -= player.speed_x;
     }
@@ -189,10 +206,15 @@ void tick_input(GLFWwindow* window)
     {
         player.freefall = false;
         player.position.y += player.speed_y;
+        propulsions.push_back(Propulsion(player.position.x - 0.06, player.position.y));
     }
     else
     {
         player.freefall = true;
+    }
+    if((down || s_key) && player.position.y > 3.2)
+    {
+        player.position.y -= player.speed_y;
     }
 
     if(!right && !left)
@@ -236,7 +258,7 @@ void tick_elements()
         if(!(SHIELD && shield.collected) && !firebeams[i].disabled && detect_collision(firebeams[i].beam.boundary, player_box))
         {
             // player.position.y = -3.2;
-            player.score -= 100;
+            player.score -= 5;
         }
         else if(firebeams[i].position.x < (player.position.x - 10.0))
         {
@@ -259,13 +281,19 @@ void tick_elements()
         if (!(SHIELD && shield.collected) && !firelines[i].disabled && detect_fire(player_box, fire_box))
         {
             // player.position.y = -3.2;
-            player.score -= 100;
+            player.score -= 5;
         }
         else if(firelines[i].position.x < (player.position.x - 10.0))
         {
             firelines.erase(firelines.begin() + i);
             --i;
         }
+    }
+
+    // Player-Boomerang collision detection
+    if(!SHIELD && detect_collision(player_box, boom.boundary))
+    {
+        player.score -= 5;
     }
 
     // Harmless
@@ -341,14 +369,14 @@ void tick_elements()
     if(MULTIPLIER && detect_collision(player_box, multiplier.boundary))
     {
         multiplier.collected = true;
-        power_up = Timer(15.0);
+        power_up = Timer(25.0);
     }
     
     // Player-Shield collision detection
     if(SHIELD && detect_collision(player_box, shield.boundary))
     {
         shield.collected = true;
-        power_up = Timer(15.0);
+        power_up = Timer(25.0);
     }
 
     // Generate Coins
@@ -421,7 +449,7 @@ void tick_elements()
     int rand_power;
 
     rand_power_decider = rand();
-    if(POWER_UP && rand_power_decider % 20 == 0)
+    if(POWER_UP && rand_power_decider % 6 == 0)
     {
         POWER_UP = false;
         rand_power = rand();
@@ -443,6 +471,8 @@ void tick_elements()
         if((multiplier.collected || shield.collected) && power_up.processTick())
         {
             POWER_UP = true;
+            MULTIPLIER = false;
+            SHIELD = false;
         }
         if(MULTIPLIER)
         {
@@ -484,51 +514,47 @@ void tick_elements()
     int magnet_y_sign;
 
     // Generate Magnet
-    if(!MAGNET && rand_magnet_decider % 6 == 0)
+    if(rand_magnet_decider % 6 == 0)
     {
-        MAGNET = true;
         rand_magnet_x = (rand() % 10) + 5;
         magnet_y_sign = (rand() % 2) == 0 ? 1 : -1;
         rand_magnet_x = (rand() % 3) * magnet_y_sign;
-        magnet = Magnet(abs(player.position.x) + rand_magnet_x, rand_magnet_y);
-        magnet_timer = Timer(15.0);
+        magnets.push_back(Magnet(abs(player.position.x) + rand_magnet_x, rand_magnet_y));
     }
-    else if(MAGNET)
+
+    for(int i=0; i<magnets.size(); ++i)
     {
-        if(magnet_timer.processTick())
+        // Player-Magnet attraction
+        if(magnets[i].position.x < (player.position.x - 10.0))
         {
-            MAGNET = false;
+            magnets.erase(magnets.begin() + i);
+            --i;
         }
-        else
+        else if(!SHIELD && player.position.x >= magnets[i].position.x && 
+                 player.position.x <= (magnets[i].position.x + 0.8))
         {
-            // Player-Magnet attraction
-            if( (player.position.x+0.2) >= magnet.position.x && 
-                (player.position.x <= (magnet.position.x + 0.8)))
+            if (player.position.y > (magnets[i].position.y + 0.2) && player.position.y > -3.2)
             {
-                if(player.position.y > (magnet.position.y + 0.2))
-                {
-                    player.position.y -= magnet.power;
-                }   
-                else
-                {
-                    player.position.y += magnet.power;
-                }
+                player.position.y -= magnets[i].power;
+            }
+            else if (player.position.y < magnets[i].position.y && player.position.y < MOVE_EDGE_T)
+            {
+                player.position.y += magnets[i].power;
             }
         }
     }   
 
     int boom_decider = rand();
-    int boom_height = (rand() % 2) + 1;
 
-    if(!BOOMERANG && boom_decider % 5 == 0)
+    if(!BOOMERANG && boom_decider % 12 == 0)
     {
         BOOMERANG = true;
-        boom = Boomerang(abs(player.position.x) + 6.0, boom_height);
+        boom = Boomerang(abs(player.position.x) + 3.0, 2.0);
     }
 
     if(BOOMERANG)
     {
-        if(boom.position.x == boom.start_x)
+        if(boom.position.x == boom.start_x && boom.position.y < 0.0)
         {
             BOOMERANG = false;
         }
@@ -539,22 +565,66 @@ void tick_elements()
         
     }
 
+    for(int i=0; i<propulsions.size(); ++i)
+    {
+        if(propulsions[i].disappear)
+        {
+            propulsions.erase(propulsions.begin() + i);
+            --i;
+        }
+        else
+        {
+            propulsions[i].tick();
+        }
+    }
+
+    for(int i=0; i<viserions.size(); ++i)
+    {
+        if(viserions[i].shots <= 0)
+        {
+            viserions.erase(viserions.begin() + i);
+            --i;
+        }
+        else
+        {
+            if(detect_collision(player_box, viserions[i].shot.boundary))
+            {
+                player.score -= 3;
+            }
+
+            if(player.position.y < viserions[i].position.y && viserions[i].position.y > -2.0)
+            {
+                viserions[i].set_position(viserions[i].position.x, viserions[i].position.y - 0.1);            
+            }
+            else if(player.position.y > viserions[i].position.y && viserions[i].position.y < 2.0)
+            {
+                viserions[i].set_position(viserions[i].position.x, viserions[i].position.y + 0.1);            
+            }
+
+            viserions[i].tick();
+        }
+    }
     
     if(STAGE == 1 && player.score >= 1000)
     {
+        viserions.push_back(Viserion(player.position.x + 2.0, 0.0));
         STAGE = 2;
     }
     else if(STAGE == 2 && player.score >= 5000)
     {
+        viserions.push_back(Viserion(player.position.x + 2.0, 0.0));
         STAGE = 3;
     }
     else if(STAGE == 3 && player.score >= 15000)
     {
+        viserions.push_back(Viserion(player.position.x + 2.0, 0.0));
         STAGE = 4;
     }
 
-    display.tick(player.position.x, (int) player.score);
-    stage.tick(player.position.x + 5.0, STAGE);
+
+    display.tick(EYE_POS, (int) player.score);
+    stage.tick(EYE_POS + 5.0, STAGE);
+
 
     cout << "Score: " << player.score << endl;
 }
@@ -571,6 +641,7 @@ void initGL(GLFWwindow* window, int width, int height)
     cieling = Cieling(0.0, 3.8, COLOR_GREY);
     display = Display(player.position.x, 4.0, player.score);
     stage = Digit(player.position.x + 5.0, 4.0, STAGE);
+    viserions.push_back(Viserion(3.0, 0.0));
 
     // Generate Coins
     Coin new_coin;
@@ -767,7 +838,7 @@ void reset_screen()
     BOTTOM_EDGE = bottom + PLAYER_HEIGHT;
 
     // MOVE_EDGE_R = RIGHT_EDGE - PLAYER_WIDTH;
-    // MOVE_EDGE_L = LEFT_EDGE + PLAYER_WIDTH;
+    // MOVE_EDGE_L = LEFT_EDGE + (PLAYER_WIDTH / 2.0);
 
     Matrices.projection = glm::ortho(left, right, bottom, top, 0.1f, 500.0f);
 }

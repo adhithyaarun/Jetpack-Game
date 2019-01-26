@@ -16,9 +16,11 @@ class Boomerang
     void set_position(double x, double y);
     void tick();
     double start_x;
+    double start_y;
     double step;
-    Rectangle top;
-    Rectangle bottom;
+    double rotation_speed;
+  private:
+    VAO* object;
 };
 
 #endif
