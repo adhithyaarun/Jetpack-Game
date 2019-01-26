@@ -7,6 +7,8 @@
 #include "waterballoon.h"
 #include "powerup.h"
 #include "display.h"
+#include "magnet.h"
+#include "boomerang.h"
 #include "timer.h"
 
 using namespace std;
@@ -33,6 +35,8 @@ Multiplier multiplier;
 Shield shield;
 Display display;
 Digit stage;
+Magnet magnet;
+Boomerang boom;
 
 bounding_box_t player_box;
 
@@ -55,13 +59,17 @@ const float START_Y = -2.95;
 
 bool MOVE_EYE = true;
 int PREV_FIRE;
+
 int WATER_REFILL = 0;
 bool POWER_UP = false;
 bool MULTIPLIER = false;
 bool SHIELD = false;
+bool MAGNET = false;
+bool BOOMERANG = false;
 
 Timer t60(1.0 / 60);
 Timer power_up;
+Timer magnet_timer;
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
@@ -136,6 +144,16 @@ void draw()
         shield.draw(VP);
     }
 
+    if(MAGNET)
+    {
+        magnet.draw(VP);
+    }
+
+    if(BOOMERANG)
+    {
+        boom.draw(VP);
+    }
+
     display.draw(VP);
     stage.draw(VP);
 
@@ -199,6 +217,11 @@ void tick_elements()
     platform.tick();
     cieling.tick();
     
+    if(player.score < 0)
+    {
+        player.score = 0;
+    }
+
     if(WATER_REFILL > 0)
     {
         WATER_REFILL--;
@@ -212,7 +235,8 @@ void tick_elements()
         firebeams[i].tick();
         if(!(SHIELD && shield.collected) && !firebeams[i].disabled && detect_collision(firebeams[i].beam.boundary, player_box))
         {
-                player.position.y = -3.2;
+            // player.position.y = -3.2;
+            player.score -= 100;
         }
         else if(firebeams[i].position.x < (player.position.x - 10.0))
         {
@@ -234,7 +258,8 @@ void tick_elements()
 
         if (!(SHIELD && shield.collected) && !firelines[i].disabled && detect_fire(player_box, fire_box))
         {
-            player.position.y = -3.2;
+            // player.position.y = -3.2;
+            player.score -= 100;
         }
         else if(firelines[i].position.x < (player.position.x - 10.0))
         {
@@ -316,7 +341,7 @@ void tick_elements()
     if(MULTIPLIER && detect_collision(player_box, multiplier.boundary))
     {
         multiplier.collected = true;
-        power_up = Timer(25.0);
+        power_up = Timer(15.0);
     }
     
     // Player-Shield collision detection
@@ -396,7 +421,7 @@ void tick_elements()
     int rand_power;
 
     rand_power_decider = rand();
-    if(POWER_UP && rand_power_decider % 30 == 0)
+    if(POWER_UP && rand_power_decider % 20 == 0)
     {
         POWER_UP = false;
         rand_power = rand();
@@ -452,6 +477,68 @@ void tick_elements()
             }
         }
     }
+
+    int rand_magnet_decider = rand();
+    int rand_magnet_x;
+    int rand_magnet_y;
+    int magnet_y_sign;
+
+    // Generate Magnet
+    if(!MAGNET && rand_magnet_decider % 6 == 0)
+    {
+        MAGNET = true;
+        rand_magnet_x = (rand() % 10) + 5;
+        magnet_y_sign = (rand() % 2) == 0 ? 1 : -1;
+        rand_magnet_x = (rand() % 3) * magnet_y_sign;
+        magnet = Magnet(abs(player.position.x) + rand_magnet_x, rand_magnet_y);
+        magnet_timer = Timer(15.0);
+    }
+    else if(MAGNET)
+    {
+        if(magnet_timer.processTick())
+        {
+            MAGNET = false;
+        }
+        else
+        {
+            // Player-Magnet attraction
+            if( (player.position.x+0.2) >= magnet.position.x && 
+                (player.position.x <= (magnet.position.x + 0.8)))
+            {
+                if(player.position.y > (magnet.position.y + 0.2))
+                {
+                    player.position.y -= magnet.power;
+                }   
+                else
+                {
+                    player.position.y += magnet.power;
+                }
+            }
+        }
+    }   
+
+    int boom_decider = rand();
+    int boom_height = (rand() % 2) + 1;
+
+    if(!BOOMERANG && boom_decider % 5 == 0)
+    {
+        BOOMERANG = true;
+        boom = Boomerang(abs(player.position.x) + 6.0, boom_height);
+    }
+
+    if(BOOMERANG)
+    {
+        if(boom.position.x == boom.start_x)
+        {
+            BOOMERANG = false;
+        }
+        else
+        {
+            boom.tick();
+        }
+        
+    }
+
     
     if(STAGE == 1 && player.score >= 1000)
     {
