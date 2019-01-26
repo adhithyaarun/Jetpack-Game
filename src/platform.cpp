@@ -7,13 +7,13 @@ Platform::Platform(float x, float y, color_t color)
     this->rotation = 0;
 
     static const GLfloat vertex_buffer_data[] = {
-         2500.0f, 0.3f, 0.0f,
-        -2500.0f,-2500.0f, 0.0f,
-        -2500.0f, 0.3f, 0.0f,
+         1000.0f, 0.3f, 0.0f,
+        -1000.0f,-1000.0f, 0.0f,
+        -1000.0f, 0.3f, 0.0f,
 
-         2500.0f, 0.3f, 0.0f,
-         2500.0f,-2500.0f, 0.0f,
-        -2500.0f,-2500.0f, 0.0f,
+         1000.0f, 0.3f, 0.0f,
+         1000.0f,-1000.0f, 0.0f,
+        -1000.0f,-1000.0f, 0.0f,
     };
 
     this->object = create3DObject(GL_TRIANGLES, 2 * 3, vertex_buffer_data, color, GL_FILL);
@@ -48,13 +48,13 @@ Cieling::Cieling(float x, float y, color_t color)
     this->rotation = 0;
 
     static const GLfloat vertex_buffer_data[] = {
-         2500.0f, 2500.0f, 0.0f,
-        -2500.0f,-0.3f, 0.0f,
-        -2500.0f, 2500.0f, 0.0f,
+         1000.0f, 1000.0f, 0.0f,
+        -1000.0f,-0.3f, 0.0f,
+        -1000.0f, 1000.0f, 0.0f,
 
-         2500.0f, 2500.0f, 0.0f,
-         2500.0f,-0.3f, 0.0f,
-        -2500.0f,-0.3f, 0.0f,
+         1000.0f, 1000.0f, 0.0f,
+         1000.0f,-0.3f, 0.0f,
+        -1000.0f,-0.3f, 0.0f,
     };
 
     this->object = create3DObject(GL_TRIANGLES, 2 * 3, vertex_buffer_data, color, GL_FILL);

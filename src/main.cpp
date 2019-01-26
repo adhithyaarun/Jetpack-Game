@@ -5,6 +5,8 @@
 #include "shape.h"
 #include "fire.h"
 #include "waterballoon.h"
+#include "powerup.h"
+#include "display.h"
 #include "timer.h"
 
 using namespace std;
@@ -27,8 +29,14 @@ vector<Coin> coins;
 vector<FireBeam> firebeams;
 vector<FireLine> firelines;
 vector<WaterBalloon> waterballoons;
+Multiplier multiplier;
+Shield shield;
+Display display;
+Digit stage;
 
 bounding_box_t player_box;
+
+int STAGE = 1;
 
 // Window Coordinate Dimensions for Player
 float RIGHT_EDGE;
@@ -48,8 +56,12 @@ const float START_Y = -2.95;
 bool MOVE_EYE = true;
 int PREV_FIRE;
 int WATER_REFILL = 0;
+bool POWER_UP = false;
+bool MULTIPLIER = false;
+bool SHIELD = false;
 
 Timer t60(1.0 / 60);
+Timer power_up;
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
@@ -115,6 +127,17 @@ void draw()
             waterballoons[i].draw(VP);
         }    
     }
+    if(MULTIPLIER && !multiplier.collected)
+    {
+        multiplier.draw(VP);
+    }
+    else if(SHIELD && !shield.collected)
+    {
+        shield.draw(VP);
+    }
+
+    display.draw(VP);
+    stage.draw(VP);
 
     player.draw(VP);
 }
@@ -181,13 +204,15 @@ void tick_elements()
         WATER_REFILL--;
     }
 
+    // Collisions
+    // Harmful
     // Player-Firebeam collision detection
     for(int i=0; i<firebeams.size(); ++i)
     {
         firebeams[i].tick();
-        if(!firebeams[i].disabled && detect_collision(firebeams[i].beam.boundary, player_box))
+        if(!(SHIELD && shield.collected) && !firebeams[i].disabled && detect_collision(firebeams[i].beam.boundary, player_box))
         {
-            player.position.y = -3.2;
+                player.position.y = -3.2;
         }
         else if(firebeams[i].position.x < (player.position.x - 10.0))
         {
@@ -196,11 +221,18 @@ void tick_elements()
         }
     }
     
+    fireline_box_t fire_box;
+
     // Player-Fireline collision detection
     for(int i=0; i<firelines.size(); ++i)
     {
         firelines[i].tick();
-        if(!firelines[i].disabled && detect_collision(firelines[i].beam.boundary, player_box))
+        fire_box.x = firelines[i].position.x;
+        fire_box.y = firelines[i].position.y;
+        fire_box.length = firelines[i].length;
+        fire_box.angle = firelines[i].angle;
+
+        if (!(SHIELD && shield.collected) && !firelines[i].disabled && detect_fire(player_box, fire_box))
         {
             player.position.y = -3.2;
         }
@@ -211,12 +243,18 @@ void tick_elements()
         }
     }
 
+    // Harmless
     // Player-Coin collision detection
     for (int i = 0; i < coins.size(); ++i)
     {
+        coins[i].tick();
         if(detect_collision(coins[i].boundary, player_box))
         {
-            player.score += 1 * coins[i].multiplier;
+            player.score += coins[i].multiplier;
+            if(MULTIPLIER && multiplier.collected)
+            {
+                player.score += coins[i].multiplier;
+            }
             coins.erase(coins.begin() + i);
             --i;
         }
@@ -227,8 +265,8 @@ void tick_elements()
         }
     }
     
+    // Waterballoon-Fire collision detection
     bool water_complete = false;
-
     for (int i = 0; i < waterballoons.size(); ++i)
     {
         water_complete = false;
@@ -255,7 +293,11 @@ void tick_elements()
         {
             for (int j = 0; j < firelines.size(); ++j)
             {
-                if (detect_collision(waterballoons[i].boundary, firelines[j].beam.boundary))
+                fire_box.x = firelines[j].position.x;
+                fire_box.y = firelines[j].position.y;
+                fire_box.length = firelines[j].length;
+                fire_box.angle = firelines[j].angle;
+                if (detect_fire(waterballoons[i].boundary, fire_box))
                 {
                     firelines[j].disabled = true;
                     water_complete = true;
@@ -268,6 +310,20 @@ void tick_elements()
                 --i;
             }
         }
+    }
+
+    // Player-Multiplier collision detection
+    if(MULTIPLIER && detect_collision(player_box, multiplier.boundary))
+    {
+        multiplier.collected = true;
+        power_up = Timer(25.0);
+    }
+    
+    // Player-Shield collision detection
+    if(SHIELD && detect_collision(player_box, shield.boundary))
+    {
+        shield.collected = true;
+        power_up = Timer(15.0);
     }
 
     // Generate Coins
@@ -301,6 +357,7 @@ void tick_elements()
         coins.push_back(new_coin);
     }
 
+    // Generate Firebeams & Firelines
     FireBeam new_beam;
     FireLine new_line;
     int new_x;
@@ -331,7 +388,86 @@ void tick_elements()
         }
 
         PREV_FIRE = new_x;
+
     }
+
+    // Generate power-up
+    int rand_power_decider;
+    int rand_power;
+
+    rand_power_decider = rand();
+    if(POWER_UP && rand_power_decider % 30 == 0)
+    {
+        POWER_UP = false;
+        rand_power = rand();
+
+        if(rand_power % 2 == 0)
+        {
+            shield = Shield(player.position.x + 20.0, 1.5);
+            SHIELD = true;
+        }
+        else
+        {
+            multiplier = Multiplier(player.position.x + 20.0, 1.5);
+            MULTIPLIER = true;
+        }
+    }
+
+    if(!POWER_UP)
+    {
+        if((multiplier.collected || shield.collected) && power_up.processTick())
+        {
+            POWER_UP = true;
+        }
+        if(MULTIPLIER)
+        {
+            if(!POWER_UP)
+            {
+                multiplier.tick();
+                if(multiplier.position.x < player.position.x && abs(multiplier.position.x - player.position.x) > 10.0)
+                {
+                    MULTIPLIER = false;
+                    POWER_UP = true;
+                }
+            }
+            else
+            {
+                MULTIPLIER = false;
+            }
+        }
+        else if(SHIELD)
+        {
+            if(!POWER_UP)
+            {
+                shield.tick();
+                if(shield.position.x < player.position.x && abs(shield.position.x - player.position.x) > 10.0)
+                {
+                    SHIELD = false;
+                    POWER_UP = true;
+                }
+            }
+            else
+            {
+                SHIELD = false;
+            }
+        }
+    }
+    
+    if(STAGE == 1 && player.score >= 1000)
+    {
+        STAGE = 2;
+    }
+    else if(STAGE == 2 && player.score >= 5000)
+    {
+        STAGE = 3;
+    }
+    else if(STAGE == 3 && player.score >= 15000)
+    {
+        STAGE = 4;
+    }
+
+    display.tick(player.position.x, (int) player.score);
+    stage.tick(player.position.x + 5.0, STAGE);
 
     cout << "Score: " << player.score << endl;
 }
@@ -346,6 +482,8 @@ void initGL(GLFWwindow* window, int width, int height)
     player = Player(START_X, START_Y, COLOR_BLUE);
     platform = Platform(0.0, -3.7, COLOR_GREY);
     cieling = Cieling(0.0, 3.8, COLOR_GREY);
+    display = Display(player.position.x, 4.0, player.score);
+    stage = Digit(player.position.x + 5.0, 4.0, STAGE);
 
     // Generate Coins
     Coin new_coin;
@@ -476,6 +614,57 @@ bool detect_collision(bounding_box_t a, bounding_box_t b)
 {
     return (abs(a.x - b.x) * 2 < (a.width + b.width)) &&
            (abs(a.y - b.y) * 2 < (a.height + b.height));
+}
+
+bool detect_fire(bounding_box_t _player, fireline_box_t fireline) 
+{
+    /* 
+        Using the equation of a line: 
+                y = mx + c
+    */
+    float radian = fireline.angle * M_PI / 180.0;
+    float y_intercept = fireline.y - (fireline.x * tan(radian));
+
+    float x_lower = (_player.y - (_player.height / 2.0) - y_intercept) / tan(radian);
+    float x_upper = x_lower + (2.0 * (_player.height / 2.0)) / tan(radian);
+
+    float y_left = y_intercept + tan(radian) * (_player.x - (_player.width / 2.0));
+    float y_right = y_left + tan(radian) * 2.0 * (_player.width / 2.0);
+    
+    // Checking y coordinate range
+    if( y_right > fireline.y && 
+        y_right < (fireline.y + fireline.length * sin(radian)) &&
+        y_right < (_player.y + (_player.height/2.0)) && 
+        y_right > (_player.y - (_player.height/2.0)))
+    {
+       return true;
+    }
+    if( y_left > fireline.y && 
+        y_left < (fireline.y + fireline.length * sin(radian)) && 
+        y_left < (_player.y + (_player.height/2.0)) && 
+        y_left > (_player.y - (_player.height/2.0)))
+    {
+       return true;
+    }
+
+    // Checking x coordinate range
+    if( x_upper > fireline.x &&
+        x_upper < (fireline.x + fireline.length * cos(radian)) && 
+        x_upper < (_player.x + (_player.width/2.0)) && 
+        x_upper > (_player.x - (_player.width/2.0)))
+    {
+       return true;
+    }
+    if( 
+        x_lower < (fireline.x + fireline.length * cos(radian)) && 
+        x_lower > fireline.x && 
+        x_lower < (_player.x + (_player.width/2.0)) && 
+        x_lower > (_player.x - (_player.width/2.0)))
+    {
+       return true;
+    }
+
+    return false;
 }
 
 void reset_screen() 

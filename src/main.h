@@ -21,6 +21,13 @@ struct color_t {
     int b;
 };
 
+struct fireline_box_t {
+    float x;
+    float y;
+    float length;
+    float angle;
+};
+
 // nonedit.cpp
 GLFWwindow* initGLFW(int width, int height);
 GLuint LoadShaders(const char* vertex_file_path, const char* fragment_file_path);
@@ -73,6 +80,7 @@ struct bounding_box_t {
 };
 
 bool detect_collision(bounding_box_t a, bounding_box_t b);
+bool detect_fire(bounding_box_t _player, fireline_box_t fireline);
 
 extern float SCREEN_ZOOM;
 extern float SCREEN_CENTER_X;
@@ -91,6 +99,7 @@ extern const color_t COLOR_GREEN;
 extern const color_t COLOR_LIGHT_GREEN;
 extern const color_t COLOR_BLUE;
 extern const color_t COLOR_SKY_BLUE;
+extern const color_t COLOR_PURPLE;
 extern const color_t COLOR_GREY;
 extern const color_t COLOR_BLACK;
 extern const color_t COLOR_WHITE;

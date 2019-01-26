@@ -19,7 +19,7 @@ bool old_cki;
 double drag_oldx = -1;
 double drag_oldy = -1;
 
-float SCREEN_ZOOM = 1.0;
+float SCREEN_ZOOM = 0.9;
 
 using namespace std;
 
@@ -102,7 +102,7 @@ void mouseButton(GLFWwindow* window, int button, int action, int mods)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) 
 {
-    if(yoffset < 0 && SCREEN_ZOOM > 0.6)
+    if(yoffset < 0 && SCREEN_ZOOM > 0.7)
     {
         zoom_out();
     }
